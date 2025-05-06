@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Result System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #8fe1e9;
+        }
+        .main-container {
+            display: flex;
+            max-width: 1200px; /* Adjust this if needed to control overall layout width */
+            margin: 0 auto;
+            gap: 20px; /* Added gap for spacing between panels */
+        }
+        .left-panel {
+            width: 350px;
+            background-color: #dff0d8;
+            border: 1px solid #000;
+            overflow: auto;
+            /* Removed box-align as it's not a standard CSS property */
+        }
+        .result-heading {
+            background-color: #cccccc;
+            padding: 5px;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+        }
+        .result-list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        .result-item {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+            background-color: #ffffcc;
+        }
+        .result-item:nth-child(odd) {
+            background-color: #fff;
+        }
+        .right-panel {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: transparent;
+            /* Added max-width to control the width of the right panel content */
+            max-width: calc(1200px - 350px - 20px - 40px); /* Example calculation based on main-container width, left panel width, gap, and right panel padding */
+            /* A simpler approach might be to control the result-card directly */
+        }
+        .container {
+            max-width: 650px; /* This container is inside right-panel, might not be needed if result-card has max-width */
+            margin: 0 auto;
+        }
+        .result-title {
+            color: #0066cc;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .result-note {
+            color: #ff0000;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        .instructions {
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        .login-form {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            font-weight: normal;
+            margin-right: 10px;
+            font-size: 14px;
+            color: #000;
+        }
+        .form-group input {
+            width: 150px;
+            padding: 5px;
+            border: 1px solid #000;
+            background-color: white;
+            font-size: 14px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .btn-submit {
+            background-color: #ffa500;
+            color: #000;
+            padding: 5px 15px;
+            border: 1px solid #000;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        /* New style for the yellow box */
+        .input-submit-box {
+            background-color: #ffffe0; /* Lightish yellow */
+            border: 1px solid #ccc; /* Optional border */
+            padding: 15px; /* Add some padding inside the box */
+            margin-bottom: 20px; /* Space below the box */
+            border-radius: 5px; /* Optional rounded corners */
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Result Page Styles */
+        /* All other styles remain the same */
+        .result-card {
+            border: 3px solid #000;
+            background-color: #dff0f8;
+            color: #000; /* Changed text color to black for better readability on light background */
+            display: none;
+            /* box-sizing: content-box; Removed as it's default and not needed for width control */
+
+            /* Added max-width to make the result card size appropriate */
+            max-width: 794px; /* Approximate width of an A4 page at 96 DPI */
+            margin: 20px auto; /* Center the result card and add some top/bottom margin */
+            padding: 20px; /* Added padding inside the result card */
+        }
+        .header {
+            border-top: #006699 ;
+            text-align: center;
+            padding: 0px;
+            border-bottom: 1px transparent;
+            position :relative;
+        }
+        .header-buttons {
+            position: absolute;
+            right: 10px;
+            top: 0px;
+        }
+        .btn {
+            padding: 2px 10px;
+            font-size: 12px;
+            border: 1px solid #000;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 0;
+        }
+        .btn-print {
+            background-color: #ffa500;
+        }
+        .btn-back {
+            background-color: #ffa500;
+            margin-left: 5px;
+        }
+        .logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .logo img {
+            width: 58px;
+            height: 58px;
+        }
+        .university-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #000;
+        }
+        .university-subtitle {
+            font-size: 10px;
+            margin-bottom: 5px;
+            color: #000;
+        }
+        .year {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #000;
+        }
+        .result-date-section {
+            text-align: right;
+            font-size: 12px; /* Optional: Centers the content */
+        }
+
+        .dashedLine {
+            color: black; /* Black dashed line */
+            font-family: monospace; /* Consistent dash rendering */
+            line-height: 1; /* Reduces vertical spacing */
+            margin: 1px 0; /* Minimal margin to tighten spacing */
+        }
+
+        .result_date {
+            color: orange; /* Orange date text */
+            margin: 1px 0; /* Minimal margin to tighten spacing */
+        }
+
+        .content {
+            background-color: #dff0f8;
+            color: #000;
+            padding: 10px;
+        }
+        .section-title {
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .label {
+            font-weight: bold;
+            font-size: 12px;
+            color: #005a66;
+        }
+        .value {
+            font-size: 12px;
+        }
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 12px;
+            background-color: #dff0f8;
+        }
+        .marks-table th, .marks-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        .marks-table th {
+            background-color: #006699;
+            color: white;
+        }
+        .marks-table tr:last-child {
+            font-weight: bold;
+        }
+        .result-status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .pass {
+            color: #e64226;
+        }
+        .note-footer {
+            font-size: 10px;
+            color: #ff0000;
+            margin-top: 20px;
+            text-align: justify;
+        }
+
+        /* Media query for responsiveness */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column; /* Stack panels vertically on smaller screens */
+                gap: 0; /* Remove gap when stacked */
+            }
+            .left-panel, .right-panel {
+                width: 100%; /* Make panels take full width */
+                max-width: none; /* Remove max-width constraint */
+                padding: 10px; /* Adjust padding for smaller screens */
+            }
+             .result-card {
+                max-width: 100%; /* Allow result card to take full width on small screens */
+                margin: 10px auto; /* Adjust margin */
+                padding: 10px; /* Adjust padding */
+            }
+             .details-grid {
+                grid-template-columns: 1fr; /* Stack details vertically on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="result-heading">
+                <table width="100%">
+                    <tr>
+                        <td width="30">Sr.No</td>
+                        <td>Result Declared</td>
+                    </tr>
+                </table>
+            </div>
+            <ul class="result-list">
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">1</td>
+                            <td>M LIB AND INFORMATION SCIENCE (2 YEAR INTEGRATED) SEM/YR: 03 (Fresh) : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">2</td>
+                            <td>M LIB AND INFORMATION SCIENCE (2 YEAR INTEGRATED) SEM/YR: 01 (ReAppear Only) : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">3</td>
+                            <td>MASTER OF LIBRARY & INFORMATION SCIENCES(LATERAL ENTRY DDE) SEM/YR: 04 (ReAppear Only) : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">4</td>
+                            <td>MASTER OF LIBRARY & INFORMATION SCIENCES(LATERAL ENTRY DDE) SEM/YR: 03 : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">5</td>
+                            <td>MASTER OF LIBRARY AND INFORMATION SCIENCES(DDE SEMESTER) SEM/YR: 02, 04 (ReAppear Only) : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">6</td>
+                            <td>MASTER OF LIBRARY AND INFORMATION SCIENCES(DDE SEMESTER) SEM/YR: 01, 03 : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">7</td>
+                            <td>MASTER OF ARTS (JOURNALISM AND MASS COMMUNICATION)(DDE SEMESTER) SEM/YR: 01, 03 : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">8</td>
+                            <td>B.VOC-(RETAIL MANAGEMENT) SEM/YR: 01, 03 : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">9</td>
+                            <td>B.VOC (MRK. MGT. & INFORMATION TECHNOLOGY) SEM/YR: 01 : 05-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+                <li class="result-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="30">10</td>
+                            <td>BACHELOR OF SCIENCE (HONOURS.) ZOOLOGY NEP SEM/YR: 01 : 02-MAY-2025</td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+        </div>
+
+        <div class="right-panel">
+            <div class="container">
+                <div class="result-title">Result</div>
+                <div class="result-note">**The Results displayed here subject to updation/correction. The final result will on DMC.</div>
+
+                <div class="instructions">
+                    Instructions:<br>
+                    1. Enter your complete "Registration No" and "Roll Number" for searching.
+                </div>
+
+                <div id="loginForm" class="login-form">
+                    <div class="input-submit-box">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regnNo">Registration No:</label>
+                                <input type="text" id="regnNo" name="regnNo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rollNo">Roll No:</label>
+                                <input type="text" id="rollNo" name="rollNo" required>
+                            </div>
+                        </div>
+                        <div class="btn-container">
+                            <button type="button" class="btn-submit" onclick="validateCredentials()">Proceed Now</button>
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="error-message">Invalid Registration No or Roll No. Please try again.</div>
+                </div>
+            </div>
+
+            <div id="resultCard" class="result-card">
+                <div class="header">
+                    <div class="header-buttons">
+                        <button class="btn btn-print" onclick="printResult()">🖨️ Print</button>
+                        <button class="btn btn-back" onclick="goBack()">◀️ Back</button>
+                    </div>
+                    <div class="logo">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/c/c8/Maharshi_Dayanand_University_logo.png" alt="University Logo">
+                    </div>
+                    <div class="university-name">MAHARSHI DAYANAND UNIVERSITY, ROHTAK</div>
+                    <div class="university-subtitle">(A State University established under Haryana Act No. XXV of 1975)</div>
+                    <div class="year">2025</div>
+
+                    <div class="result-date-section">
+                        <hr class="dashedLine" />
+                        <div class="result_date">Date of result declaration: 06/05/2025</div>
+                        <hr class="dashedLine" />
+                    </div>
+
+                </div>
+
+                <div class="content">
+                    <div class="section-title">Student Details</div>
+
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="label">Registration No.:</span>
+                            <span id="studentRegnNo" class="value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Roll No.:</span>
+                            <span id="studentRollNo" class="value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Branch:</span>
+                            <span class="value">DCSA</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Student Name:</span>
+                            <span id="studentName" class="value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Father Name:</span>
+                            <span id="fatherName" class="value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">College Code:</span>
+                            <span class="value">0881</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Sem/Part:</span>
+                            <span class="value">I (DEC - 2024)</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Course Name:</span>
+                            <span class="value"> M. Sc. in Computer Science (Data Science & Machine Learning) 24315</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">College Name:</span>
+                            <span class="value">Maharshi Dayanand University</span>
+                        </div>
+                    </div>
+                    <br><br>
+
+                    <div class="section-title">Obtained Marks Details</div>
+                    <br><br>
+
+                    <table class="marks-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Details</th>
+                                <th>Theory Marks</th>
+                                <th>Practical Marks</th>
+                                <th>Sessional Marks</th>
+                                <th>Total Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>24CSM202DS01 </td>
+                                <td>063</td>
+                                <td>--</td>
+                                <td>15</td>
+                                <td>078</td>
+                            </tr>
+                            <tr>
+                                <td>24CSM202DS02 </td>
+                                <td>051</td>
+                                <td>--</td>
+                                <td>14</td>
+                                <td>065</td>
+                            </tr>
+                            <tr>
+                                <td>24CSM202DS03 </td>
+                                <td>039</td>
+                                <td>16</td>
+                                <td>13</td>
+                                <td>068</td>
+                            </tr>
+                            <tr>
+                                <td>24CSM202DS04 </td>
+                                <td>042</td>
+                                <td>19</td>
+                                <td>20</td>
+                                <td>081</td>
+                            </tr>
+                            <tr>
+                                <td>24CSM202DS05 </td>
+                                <td>046</td>
+                                <td>15</td>
+                                <td>12</td>
+                                <td>073</td>
+                            </tr>
+                            <tr>
+                                <td>Total :-</td>
+                                <td>--</td>
+                                <td>--</td>
+                                <td>--</td>
+                                <td>365/500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="result-status">Result: <span class="pass">PASS</span></div>
+
+                    <div class="note-footer">
+                        <br>
+                        <strong>NOTE:</strong> In R.L.A./R.L.E. cases (Result Late due to non-receipt/non-eligibility of awards) the student concerned should check his/her result within 10 days from the date of declaration of this result. If his/her entire A.W. has been indicated/ along with a copy of the downloaded result to the concerned Result Branch within 10 days positively, failing which he/she will be treated 'Absent' in the said paper and the result will be finalized accordingly.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database of students
+        const studentDatabase = {
+            regnNos: [1816400827, 2116342821, 2116402850, 2016402328, 2016342305, 2117441383, 2116341107, 2116342890, 2116342894, 2418090017, 2016401699, 2116402941, 2118381033, 2418090018, 2116401585, 2116271241, 2113301068, 2418090001, 2118381005, 2016401481, 2016311817, 2418090012, 2418090013, 2116313209, 2116271158, 2116441373, 1610180239, 2013301272, 2418090016, 1913230199, 1916311390, 2218371012, 1916440201, 2016401507, 2418090019, 1916440134, 1916320302, 2116351101, 2418090002, 2418090003, 2016312610],
+            rollNos: [6401411, 6401412, 6401413, 6401414, 6401415, 6401416, 6401417, 6401418, 6401419, 6401420, 6401421, 6401422, 6401423, 6401424, 6401425, 6401426, 6401427, 6401428, 6401429, 6401430, 6401431, 6401432, 6401433, 6401434, 6401435, 6401436, 6401437, 6401438, 6401439, 6401440, 6401441, 6401442, 6401443, 6401444, 6401445, 6401446, 6401447, 6401448, 6401449, 6401450, 6401451],
+            names: ["ANNU", "ANSHUL MOR", "Anuja", "Deepika", "Ishika", "Kajal", "Khushbu", "KIRTI", "KIRTI", "MONIKA", "NEHA", "NIDHI", "Pariksha", "Payal", "RITU", "SHALU", "SONIYA", "tannu", "Aman", "AMAN MALIK", "Aman singh", "Aman Singh", "Ankit", "ASHISH", "CHIRAG", "Happy", "Hariom", "Himanshu", "KUNAL SAINI", " Lakshaya Kumar", "MANISH KUMAR", "Mohit", "MOHIT MALIK", "Pulkit", "Sahil", "Saurav", "Sharma sumit subhash", "Shiven", "Vikas", "vinesh", "Yash hooda"],
+            fatherNames: ["JAIBHAGWAN", "PARDEEP", "Krishan Lal", "Bijender Singh", "Hari Narayan", "Rajesh", "7494846232", "SANJAY", "ASHOK", "DALBIR", "HARIOM", "SATISH", "Sanjay Kumar", "Pardeep Kumar", "RAJESH", "MANISH", "PUNJAB", "JASBIR SINGH", "Rakesh Kumar", "SUDESH MALIK", "Ajay kumar", "Sukhbir", "Shri Bhagwan", "SATISH", "SANJAY", "Anand Jangra", "PREM SINGH", "DHARMENDER", "Gian Singh", "ATUL KUMAR", "BRIJMOHAN", "Raj Singh", "NARESH", "Satyaender Kumar", "Anil", "Gopal Singh", "Subhash Sharma", "Sumesh Kumar", "Banta ram", "Narender", "Sandeep Kumar"]
+        };
+
+        function validateCredentials() {
+            const regnNo = parseInt(document.getElementById('regnNo').value);
+            const rollNo = parseInt(document.getElementById('rollNo').value);
+
+            // Find the index of the registration number in the database
+            const regnIndex = studentDatabase.regnNos.indexOf(regnNo);
+
+            // Check if the registration number exists and if the roll number matches the expected roll number for that registration
+            if (regnIndex !== -1 && studentDatabase.rollNos[regnIndex] === rollNo) {
+                // Valid credentials, show the result card
+                displayResult(regnIndex);
+            } else {
+                // Invalid credentials, show error message
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+
+        function displayResult(studentIndex) {
+            // Hide login form and error message
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            // Show result card
+            document.getElementById('resultCard').style.display = 'block';
+
+            // Update student details
+            document.getElementById('studentRegnNo').textContent = studentDatabase.regnNos[studentIndex];
+            document.getElementById('studentRollNo').textContent = studentDatabase.rollNos[studentIndex];
+            document.getElementById('studentName').textContent = studentDatabase.names[studentIndex];
+            document.getElementById('fatherName').textContent = studentDatabase.fatherNames[studentIndex];
+        }
+
+        function printResult() {
+            window.print();
+        }
+
+        function goBack() {
+            // Hide result card and show login form
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+
+            // Clear input fields
+            document.getElementById('regnNo').value = '';
+            document.getElementById('rollNo').value = '';
+        }
+    </script>
+</body>
+</html>
